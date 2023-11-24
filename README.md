@@ -3,7 +3,7 @@
 ## Credentials
 ```
 Super Admin
-email: superadmin@yopmail.com
+email: superadmincar@yopmail.com
 password: superadmincar 
 ```
 
