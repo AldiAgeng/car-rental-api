@@ -11,9 +11,8 @@ export const authenticateToken: (
   try {
     const bearerToken = req.headers.authorization;
     if (!bearerToken) {
-      throw {
-        name: "Unauthorized",
-      };
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
     }
 
     const tokenUser = bearerToken.split("Bearer ")[1];
@@ -21,7 +20,8 @@ export const authenticateToken: (
 
     const user = await UsersModel.query().findById(tokenPayload.id);
     if (!user) {
-      return ResponseHelper.error("Email or password invalid", null, 401)(res);
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
     }
 
     const isHavetoken = await UsersModel.query().findOne({
@@ -29,7 +29,82 @@ export const authenticateToken: (
     });
 
     if (!isHavetoken) {
-      return ResponseHelper.error("Email or password invalid", null, 401)(res);
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    ResponseHelper.error("Email or password invalid", null, 401)(res);
+    return
+  }
+};
+
+
+export const authenticateTokenSuperAdmin: (
+  req: IUserReq, res: Response, next: NextFunction
+) => Promise<void> = async (req, res, next) => {
+  try {
+    const bearerToken = req.headers.authorization;
+    if (!bearerToken) {
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
+    }
+
+    const tokenUser = bearerToken.split("Bearer ")[1];
+    const tokenPayload = jwt.verify(tokenUser, "Rahasia") as Users;
+
+    const user = await UsersModel.query().findById(tokenPayload.id);
+    if (!user) {
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
+    }
+
+    const isHavetoken = await UsersModel.query().findOne({
+      token: tokenUser
+    }).andWhere({
+      role_id: 1
+    })
+
+    if (!isHavetoken) {
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    return ResponseHelper.error("Email or password invalid", null, 401)(res);
+  }
+};
+
+export const authenticateTokenAdmin: (
+  req: IUserReq, res: Response, next: NextFunction
+) => Promise<void> = async (req, res, next) => {
+  try {
+    const bearerToken = req.headers.authorization;
+    if (!bearerToken) {
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
+    }
+
+    const tokenUser = bearerToken.split("Bearer ")[1];
+    const tokenPayload = jwt.verify(tokenUser, "Rahasia") as Users;
+
+    const user = await UsersModel.query().findById(tokenPayload.id);
+    if (!user) {
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
+    }
+
+    const isHavetoken = await UsersModel.query().findOne({
+      token: tokenUser
+    }).andWhereBetween('role_id', [1, 2])
+
+    if (!isHavetoken) {
+      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      return
     }
 
     req.user = user;

@@ -7,7 +7,7 @@ export class CarRepository {
     const queryBuilder = CarsModel.query();
 
     if (search) {
-      queryBuilder.whereILike("name", `%${search}%`).whereILike("size", `%${search}%`);
+      queryBuilder.whereILike("name", `%${search}%`);
     }
 
     if (dateFilter) {
@@ -28,34 +28,45 @@ export class CarRepository {
       queryBuilder.page((+page - 1) * +limit, +limit);
     }
 
-    return await queryBuilder;
+    return await queryBuilder.withGraphFetched("[userCreated, userUpdated, userDeleted]");
   }
 
   static async show(id: number) {
-    const car = await CarsModel.query().findById(id).throwIfNotFound();
+    const car = await CarsModel.query().findById(id).withGraphFetched("[userCreated, userUpdated, userDeleted]").throwIfNotFound();
     return car;
   }
 
-  static async create(car: any) {
-    const cars = await CarsModel.query().insert(car).returning("*");
+  static async create(car: any, userId: number) {
+    const cars = await CarsModel.query().insert({
+      ...car,
+      created_by: userId
+    }).returning("*");
     return cars;
   }
 
-  static async update(id: number, car: any) {
-    const cars = await CarsModel.query()
+  static async update(id: number, car: any, userId: number) {
+    return await CarsModel.query()
       .where({ id })
-      .patch(car)
-      .throwIfNotFound()
-      .returning("*");
-    return cars;
+      .patch({
+        ...car,
+        updated_by: userId
+      })
+      .throwIfNotFound();
   }
 
-  static async delete(id: number) {
-    const cars = await CarsModel.query()
+  static async delete(id: number, userId: number) {
+    return await CarsModel.transaction(async (trx) => {
+      await CarsModel.query(trx)
       .where({ id })
-      .del()
-      .throwIfNotFound()
-      .returning("*");
-    return cars;
+      .patch({ deleted_by: userId })
+      .throwIfNotFound();
+
+      const deletedCars = await CarsModel.query(trx)
+        .delete()
+        .where({ id })
+        .returning("*");
+
+      return deletedCars;
+    })
   }
 }

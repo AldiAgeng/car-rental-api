@@ -17,6 +17,22 @@ export class UserService {
     return await UserRepository.create(user);
   }
 
+  static async register(user: any) {
+
+    const isEmailExist = await UserRepository.show({ email: user.email });
+
+    if (isEmailExist) {
+      throw new Error("Email already exist");
+    }
+
+    user.password = await hashPassword(user.password) as string;
+
+    return await UserRepository.create({
+      ...user,
+      role_id: 3
+    });
+  }
+
   static async login(email: string, password: string) {
     const user = await UserRepository.show({ email });
   

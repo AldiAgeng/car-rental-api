@@ -12,7 +12,7 @@ export class CarService {
     return car;
   }
 
-  static async create(car: any, image: any) {
+  static async create(car: any, image: any, userId: number) {
     const optionsJson = JSON.stringify(car.options);
     const specsJson = JSON.stringify(car.specs);
 
@@ -26,11 +26,11 @@ export class CarService {
       image: result.secure_url
     }
 
-    const cars = await CarRepository.create(carPayload);
+    const cars = await CarRepository.create(carPayload, userId);
     return cars;
   }
 
-  static async update(id: number, car: any, image: any) {
+  static async update(id: number, car: any, image: any, userId: number) {
     const optionsJson = JSON.stringify(car.options);
     const specsJson = JSON.stringify(car.specs);
 
@@ -47,7 +47,7 @@ export class CarService {
             image: result.secure_url
         };
 
-        return await CarRepository.update(id, carPayload);
+        return await CarRepository.update(id, carPayload, userId);
     }
 
     await deleteImageFromCloudinary(carInDB.image_public_id);
@@ -62,18 +62,18 @@ export class CarService {
         image: result.secure_url
     };
 
-    return await CarRepository.update(id, carPayload);
+    return await CarRepository.update(id, carPayload, userId);
   }
-  static async delete(id: number) {
+  static async delete(id: number, userId: number) {
 
     const carInDB = await CarRepository.show(id);
 
     if (carInDB.image && carInDB.image_public_id) {
       await deleteImageFromCloudinary(carInDB.image_public_id);
 
-      return await CarRepository.delete(id);
+      return await CarRepository.delete(id, userId);
     }
 
-    return await CarRepository.delete(id);
+    return await CarRepository.delete(id, userId);
   }
 }

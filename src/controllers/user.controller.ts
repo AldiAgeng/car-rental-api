@@ -5,6 +5,20 @@ import { IUserReq } from "../interfaces/user.req.interface";
 import { UserService } from "../services/user.service";
 
 export class UserController extends ResponseHelper {
+  async store(req: Request<{}, {}, Users>, res: Response) {
+    try {
+      const user = await UserService.create(req.body);
+
+      return ResponseHelper.success("Data disimpan", user, 201)(res);
+    } catch (error) {
+      if (error instanceof Error) {
+        return ResponseHelper.error(error.message, null, 400)(res);
+      } else {
+        return ResponseHelper.error("An unknown error occurred")(res);
+      }
+    }
+  }
+
   async register(req: Request<{}, {}, Users>, res: Response) {
     try {
       const user = await UserService.create(req.body);

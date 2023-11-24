@@ -2,6 +2,8 @@ import express, { Express } from "express";
 import { Model } from "objection";
 import { config } from "dotenv";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "./docs/swagger-docs.json";
 
 config();
 
@@ -18,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/api/v1", route);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((req, res) => {
   res.status(404).json({

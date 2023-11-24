@@ -4,6 +4,7 @@ import { Cars } from "../databases/models/cars";
 import { IParams } from "../interfaces/id.interface";
 import { ResponseHelper } from "../helpers/response.helper";
 import { CarService } from "../services/car.service";
+import { IUserReq } from "../interfaces/user.req.interface";
 
 
 export class CarsController extends ResponseHelper {
@@ -21,11 +22,11 @@ export class CarsController extends ResponseHelper {
     }
   }
   
-  async create(req: Request<{}, {}, Cars>, res: Response) {
+  async create(req: IUserReq, res: Response) {
     try {
       const body = req.body;
       const image = req.file;
-      const car = await CarService.create(body, image);
+      const car = await CarService.create(body, image, req.user?.id as number);
       return ResponseHelper.success("Data disimpan", car, 201)(res);
     } catch (error) {
       if (error instanceof Error) {
@@ -52,7 +53,7 @@ export class CarsController extends ResponseHelper {
     }
   }
 
-  async update(req: Request<IParams, {}, Partial<Cars>>, res: Response) {
+  async update(req: IUserReq, res: Response) {
     try {
       if(req.params.id === undefined){
         return ResponseHelper.error("Parameter id harus diisi", null, 400)(res);
@@ -60,7 +61,7 @@ export class CarsController extends ResponseHelper {
       const body = req.body;
       const image = req.file;
       const id = +req.params.id;
-      const cars = await CarService.update(id, body, image);
+      const cars = await CarService.update(id, body, image, req.user?.id as number);
       return ResponseHelper.success("Data diubah", cars, 200)(res);
     } catch (error) {
       if (error instanceof Error) {
@@ -71,13 +72,13 @@ export class CarsController extends ResponseHelper {
     }
   }
 
-  async delete(req: Request<IParams>, res: Response) {
+  async delete(req: IUserReq, res: Response) {
     try {
       if(req.params.id === undefined){
         return ResponseHelper.error("Parameter id harus diisi", null, 400)(res);
       }
       const id = +req.params.id;
-      await CarService.delete(id);
+      await CarService.delete(id, req.user?.id as number);
       return ResponseHelper.success("Data dihapus")(res);
     } catch (error) {
       if (error instanceof Error) {
