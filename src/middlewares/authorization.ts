@@ -1,9 +1,12 @@
 import jwt from "jsonwebtoken";
+import { config } from "dotenv";
 
 import { NextFunction, Response } from "express";
 import { UsersModel, Users } from "../databases/models/users";
 import { ResponseHelper } from "../helpers/response.helper";
 import { IUserReq } from "../interfaces/user.req.interface";
+
+config();
 
 export const authenticateToken: (
   req: IUserReq, res: Response, next: NextFunction
@@ -16,7 +19,7 @@ export const authenticateToken: (
     }
 
     const tokenUser = bearerToken.split("Bearer ")[1];
-    const tokenPayload = jwt.verify(tokenUser, "Rahasia") as Users;
+    const tokenPayload = jwt.verify(tokenUser, process.env.JWT_SECRET || "Rahasia") as Users;
 
     const user = await UsersModel.query().findById(tokenPayload.id);
     if (!user) {
@@ -53,7 +56,7 @@ export const authenticateTokenSuperAdmin: (
     }
 
     const tokenUser = bearerToken.split("Bearer ")[1];
-    const tokenPayload = jwt.verify(tokenUser, "Rahasia") as Users;
+    const tokenPayload = jwt.verify(tokenUser, process.env.JWT_SECRET || "Rahasia") as Users;
 
     const user = await UsersModel.query().findById(tokenPayload.id);
     if (!user) {
@@ -90,7 +93,7 @@ export const authenticateTokenAdmin: (
     }
 
     const tokenUser = bearerToken.split("Bearer ")[1];
-    const tokenPayload = jwt.verify(tokenUser, "Rahasia") as Users;
+    const tokenPayload = jwt.verify(tokenUser, process.env.JWT_SECRET || "Rahasia") as Users;
 
     const user = await UsersModel.query().findById(tokenPayload.id);
     if (!user) {
