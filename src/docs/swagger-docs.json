@@ -7,10 +7,10 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000/api/v1/"
+      "url": "https://real-puce-bonobo-wrap.cyclic.app/api/v1/"
     },
     {
-      "url": "https://exaple.com/api/v1/"
+      "url": "http://localhost:8000/api/v1/"
     }
   ],
   "paths": {
