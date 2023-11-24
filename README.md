@@ -1,10 +1,23 @@
 # Express TS Starter Using Controller->Service->Repository Architecture
 
+## Credentials
+```
+Super Admin
+email: superadmin@yopmail.com
+password: superadmincar 
+```
+
 ## How to use?
 
 ```
 $ npm install
 $ npm run dev # run development!
+```
+
+## Migrations & Seeds
+```
+$ npm run knex migrate:latest
+$ npm run knex seed:run
 ```
 
 ## Scripts
@@ -21,7 +34,3 @@ $ docker compose up -d # run database
 $ docker compose down -v # delete database and the volume
 ```
 
-# #How To make migrate
-```
-$ npx knex migrate:make users --migrations-directory ./src/databases/migrations -x ts
-```
