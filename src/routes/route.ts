@@ -19,8 +19,10 @@ route.get("/articles/:id", authenticateToken, articlesController.show);
 route.patch("/articles/:id", authenticateToken, upload.single("image"), articlesController.update);
 route.delete("/articles/:id", authenticateToken, articlesController.delete);
 
+// cars
 route.get("/cars", authenticateTokenAdmin, carsController.list);
 route.post("/cars", authenticateTokenAdmin, upload.single("image"),  carsController.create);
+route.get("/cars/public", carsController.listPublic);
 route.get("/cars/:id", authenticateTokenAdmin, carsController.show);
 route.patch("/cars/:id", authenticateTokenAdmin, upload.single("image"), carsController.update);
 route.delete("/cars/:id", authenticateTokenAdmin, carsController.delete);

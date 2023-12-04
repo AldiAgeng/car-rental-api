@@ -21,6 +21,19 @@ export class CarsController extends ResponseHelper {
       }
     }
   }
+
+  async listPublic(req: Request, res: Response) {
+    try {
+      const cars = await CarService.listPublic(req.query);
+      return ResponseHelper.success("Data ditemukan", cars)(res);
+    } catch (error) {
+      if (error instanceof Error) {
+        return ResponseHelper.error(error.message, null, 404)(res);
+      } else {
+        return ResponseHelper.error("An unknown error occurred")(res);
+      }
+    }
+  }
   
   async create(req: IUserReq, res: Response) {
     try {

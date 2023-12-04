@@ -7,6 +7,11 @@ export class CarService {
     return car;
   }
 
+  static async listPublic(query: any) {
+    const car = await CarRepository.listPublic(query);
+    return car;
+  }
+
   static async show(id: number) {
     const car = await CarRepository.show(id);
     return car;
