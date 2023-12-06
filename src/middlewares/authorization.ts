@@ -14,7 +14,7 @@ export const authenticateToken: (
   try {
     const bearerToken = req.headers.authorization;
     if (!bearerToken) {
-      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      ResponseHelper.error("Bearer token not found", null, 401)(res);
       return
     }
 
@@ -23,7 +23,7 @@ export const authenticateToken: (
 
     const user = await UsersModel.query().findById(tokenPayload.id);
     if (!user) {
-      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      ResponseHelper.error("User notfound", null, 401)(res);
       return
     }
 
@@ -32,13 +32,15 @@ export const authenticateToken: (
     });
 
     if (!isHavetoken) {
-      ResponseHelper.error("Email or password invalid", null, 401)(res);
+      ResponseHelper.error("token notfound", null, 401)(res);
       return
     }
 
     req.user = user;
     next();
   } catch (error) {
+    console.log(error);
+    console.log("error hahaha");
     ResponseHelper.error("Email or password invalid", null, 401)(res);
     return
   }
