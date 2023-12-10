@@ -3,8 +3,49 @@ import { ResponseHelper } from "../helpers/response.helper";
 import { Users } from "../databases/models/users";
 import { IUserReq } from "../interfaces/user.req.interface";
 import { UserService } from "../services/user.service";
+import { OAuth2Client, UserRefreshClient } from "google-auth-library";
+import { config } from "dotenv";
+
+config();
+
+const ClientId = process.env.GOOGLE_CLIENT_ID
+const ClientSecret = process.env.GOOGLE_SECRET
+const oAuth2Client = new OAuth2Client(ClientId, ClientSecret, 'postmessage');
 
 export class UserController extends ResponseHelper {
+
+  async googleLogin(req: Request, res: Response) {
+    try {
+      const { tokens } = await oAuth2Client.getToken(req.body.code);
+      return ResponseHelper.success("Data disimpan", tokens, 201)(res);
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Error) {
+        return ResponseHelper.error(error.message, null, 400)(res);
+      } else {
+        return ResponseHelper.error("An unknown error occurred")(res);
+      }
+    }    
+  }
+
+  async refreshTokenGoogle(req: Request, res: Response) {
+    try {
+      const user = new UserRefreshClient(
+        ClientId,
+        ClientSecret,
+        req.body.refreshToken
+      )
+      const { credentials } = await user.refreshAccessToken();
+      return ResponseHelper.success("Data disimpan", credentials, 201)(res);
+    }catch(error) {
+      if (error instanceof Error) {
+        return ResponseHelper.error(error.message, null, 400)(res);
+      } else {
+        return ResponseHelper.error("An unknown error occurred")(res);
+      }
+    }
+  }
+
   async store(req: Request<{}, {}, Users>, res: Response) {
     try {
       const user = await UserService.create(req.body);

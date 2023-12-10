@@ -39,4 +39,7 @@ route.post("/users", authenticateTokenSuperAdmin, userController.store);
 // users member
 route.post("/users/member/register", userController.register);
 
+// oauth
+route.post('/users/auth/google', userController.googleLogin);
+
 export default route;
