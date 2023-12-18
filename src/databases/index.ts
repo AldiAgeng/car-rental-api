@@ -1,14 +1,17 @@
-import knex from "knex";
+import knex from 'knex'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const knexInstance = knex({
   client: process.env.DB_CLIENT,
   connection: {
-    host :  process.env.DB_HOST,
-    port :  parseInt(process.env.DB_PORT || '5432'),
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT ?? '5432'),
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-  },
-});
+    password: process.env.DB_PASSWORD
+  }
+})
 
-export default knexInstance;
+export default knexInstance

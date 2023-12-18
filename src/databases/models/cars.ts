@@ -1,6 +1,6 @@
-import { Model, ModelObject } from "objection";
-import objectionSoftDelete from 'objection-js-soft-delete';
-import { UsersModel } from "./users";
+import { Model, type ModelObject } from 'objection'
+import objectionSoftDelete from 'objection-js-soft-delete'
+import { UsersModel } from './users'
 
 const softDelete = objectionSoftDelete({
   columnName: 'deleted_at',
@@ -9,28 +9,29 @@ const softDelete = objectionSoftDelete({
 })
 
 export class CarsModel extends softDelete(Model) {
-  id!: number;
-  plate!: string;
-  manufacture!: string;
-  model!: string;
-  image!: string;
-  image_public_id!: string;
-  rent_per_day!: number;
-  capacity!: number;
-  description!: string;
-  available_at!: Date;
-  transmission!: string;
-  available!: boolean;
-  type!: string;
-  year!: number;
-  options!: string;
-  specs!: string;
-  created_by!: number;
-  updated_by!: number;
-  deleted_by!: number;
+  id!: number
+  plate!: string
+  manufacture!: string
+  model!: string
+  image!: string
+  image_public_id!: string
+  rent_per_day!: number
+  capacity!: number
+  description!: string
+  available_at!: Date
+  transmission!: string
+  available!: boolean
+  type!: string
+  year!: number
+  options!: string
+  specs!: string
+  created_by!: number
+  updated_by!: number
+  deleted_by!: number
 
-  static get tableName() {
-    return "cars";
+  protected static nameOfTable = 'cars'
+  static get tableName (): string {
+    return this.nameOfTable
   }
 
   static relationMappings = {
@@ -38,27 +39,27 @@ export class CarsModel extends softDelete(Model) {
       relation: Model.BelongsToOneRelation,
       modelClass: UsersModel,
       join: {
-        from: "cars.created_by",
-        to: "users.id",
+        from: 'cars.created_by',
+        to: 'users.id'
       }
     },
     userUpdated: {
       relation: Model.BelongsToOneRelation,
       modelClass: UsersModel,
       join: {
-        from: "cars.updated_by",
-        to: "users.id",
+        from: 'cars.updated_by',
+        to: 'users.id'
       }
     },
     userDeleted: {
       relation: Model.BelongsToOneRelation,
       modelClass: UsersModel,
       join: {
-        from: "cars.deleted_by",
-        to: "users.id",
+        from: 'cars.deleted_by',
+        to: 'users.id'
       }
     }
   }
 }
 
-export type Cars = ModelObject<CarsModel>;
+export type Cars = ModelObject<CarsModel>

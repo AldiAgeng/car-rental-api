@@ -1,16 +1,16 @@
-import { Knex } from "knex";
+import { type Knex } from 'knex'
 
-export async function seed(knex: Knex): Promise<void> {
+export async function seed (knex: Knex): Promise<void> {
   // Deletes ALL existing entries
-  await knex("articles").del();
+  await knex('articles').del()
 
   // Inserts seed entries
-  await knex("articles").insert([
+  await knex('articles').insert([
     {
       id: 1,
-      title: "Jakarta Sedang Bagus Bagusnya",
-      body: "Ini isi berita",
-      approved: true,
-    },
-  ]);
+      title: 'Jakarta Sedang Bagus Bagusnya',
+      body: 'Ini isi berita',
+      approved: true
+    }
+  ])
 }

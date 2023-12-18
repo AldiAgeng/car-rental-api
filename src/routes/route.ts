@@ -1,45 +1,40 @@
-import { Router } from "express";
+import { Router } from 'express'
+import express, { type Express } from 'express'
+import { UserController } from '../controllers/user.controller'
+import { CarsController } from '../controllers/car.controller'
+import { authenticateToken, authenticateTokenAdmin, authenticateTokenSuperAdmin } from '../middlewares/authorization'
+import upload from '../utils/upload.on.memory'
 
-import { ArticlesController } from "../controllers/article.controller";
-import { UserController } from "../controllers/user.controller";
-import { CarsController } from "../controllers/car.controller";
-import { authenticateToken, authenticateTokenAdmin, authenticateTokenSuperAdmin } from "../middlewares/authorization";
-import upload from "../utils/upload.on.memory";
+export const route = Router()
+const app: Express = express()
 
-export const route = Router();
+const userController = new UserController(app)
+const { login, refreshToken, logout, whoami, store, register, googleLogin } = userController
 
-const articlesController = new ArticlesController();
-const userController = new UserController();
-const carsController = new CarsController();
-
-// articles
-route.get("/articles", authenticateToken, articlesController.list);
-route.post("/articles", authenticateToken, upload.single("image"),  articlesController.create);
-route.get("/articles/:id", authenticateToken, articlesController.show);
-route.patch("/articles/:id", authenticateToken, upload.single("image"), articlesController.update);
-route.delete("/articles/:id", authenticateToken, articlesController.delete);
+const carsController = new CarsController(app)
+const { listPublic, list, create, show, update, delete: deleteCar } = carsController
 
 // cars
-route.get("/cars", authenticateTokenAdmin, carsController.list);
-route.post("/cars", authenticateTokenAdmin, upload.single("image"),  carsController.create);
-route.get("/cars/public", carsController.listPublic);
-route.get("/cars/:id", authenticateTokenAdmin, carsController.show);
-route.patch("/cars/:id", authenticateTokenAdmin, upload.single("image"), carsController.update);
-route.delete("/cars/:id", authenticateTokenAdmin, carsController.delete);
+route.get('/cars', authenticateTokenAdmin, list.bind(carsController))
+route.post('/cars', authenticateTokenAdmin, upload.single('image'), create.bind(carsController))
+route.get('/cars/public', listPublic.bind(carsController))
+route.get('/cars/:id', authenticateTokenAdmin, show.bind(carsController))
+route.patch('/cars/:id', authenticateTokenAdmin, upload.single('image'), update.bind(carsController))
+route.delete('/cars/:id', authenticateTokenAdmin, deleteCar.bind(carsController))
 
 // users
-route.post("/users/login", userController.login);
-route.post("/users/refresh-token", userController.refreshToken);
-route.post("/users/logout", authenticateToken, userController.logout);
-route.get("/users/me", authenticateToken, userController.whoami);
+route.post('/users/login', login.bind(userController))
+route.post('/users/refresh-token', refreshToken.bind(userController))
+route.post('/users/logout', authenticateToken, logout.bind(userController))
+route.get('/users/me', authenticateToken, whoami.bind(userController))
 
 // super admin management users
-route.post("/users", authenticateTokenSuperAdmin, userController.store);
+route.post('/users', authenticateTokenSuperAdmin, store.bind(userController))
 
 // users member
-route.post("/users/member/register", userController.register);
+route.post('/users/member/register', register.bind(userController))
 
 // oauth
-route.post('/users/auth/google', userController.googleLogin);
+route.post('/users/auth/google', googleLogin.bind(userController))
 
-export default route;
+export default route

@@ -1,104 +1,87 @@
-import { Response, Request } from "express";
+import { type Response, type Request, type Express } from 'express'
 
-import { Cars } from "../databases/models/cars";
-import { IParams } from "../interfaces/id.interface";
-import { ResponseHelper } from "../helpers/response.helper";
-import { CarService } from "../services/car.service";
-import { IUserReq } from "../interfaces/user.req.interface";
+import { type Cars } from '../databases/models/cars'
+import { type IParams } from '../interfaces/id.interface'
+import { ResponseHelper } from '../helpers/response.helper'
+import { ErrorHelper } from '../helpers/error.helper'
+import { CarService } from '../services/car.service'
 
+export class CarsController {
+  app: Express
+  carService: CarService
 
-export class CarsController extends ResponseHelper {
-  async list(req: Request, res: Response) {
+  constructor (app: Express) {
+    this.app = app
+    this.carService = new CarService()
+  }
+
+  async list (req: Request, res: Response): Promise<void> {
     try {
-      const cars = await CarService.list(req.query);
+      const cars = await this.carService.list(req.query)
 
-      return ResponseHelper.success("Data ditemukan", cars)(res);
+      ResponseHelper.success('Data ditemukan', cars)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 404)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async listPublic(req: Request, res: Response) {
+  async listPublic (req: Request, res: Response): Promise<any> {
     try {
-      const cars = await CarService.listPublic(req.query);
-      return ResponseHelper.success("Data ditemukan", cars)(res);
+      const cars = await this.carService.listPublic(req.query)
+      ResponseHelper.success('Data ditemukan', cars)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 404)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
-    }
-  }
-  
-  async create(req: IUserReq, res: Response) {
-    try {
-      const body = req.body;
-      const image = req.file;
-      const car = await CarService.create(body, image, req.user?.id as number);
-      return ResponseHelper.success("Data disimpan", car, 201)(res);
-    } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 400)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async show(req: Request<IParams>, res: Response) {
+  async create (req: Request, res: Response): Promise<void> {
     try {
-      if(req.params.id === undefined){
-        return ResponseHelper.error("Parameter id harus diisi", null, 400)(res);
-      }
-      const car = await CarService.show(+req.params.id);
-      return ResponseHelper.success("Data ditemukan", car)(res);
+      const body = req.body
+      const image = req.file
+      const car = await this.carService.create(body, image, req.user?.id)
+      ResponseHelper.success('Data disimpan', car, 201)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 404)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async update(req: IUserReq, res: Response) {
+  async show (req: Request<IParams>, res: Response): Promise<void> {
     try {
-      if(req.params.id === undefined){
-        return ResponseHelper.error("Parameter id harus diisi", null, 400)(res);
+      if (req.params.id === undefined) {
+        ResponseHelper.error('Parameter id harus diisi', null, 400)(res); return
       }
-      const body = req.body;
-      const image = req.file;
-      const id = +req.params.id;
-      const cars = await CarService.update(id, body, image, req.user?.id as number);
-      return ResponseHelper.success("Data diubah", cars, 200)(res);
+      const car = await this.carService.show(+req.params.id)
+      ResponseHelper.success('Data ditemukan', car)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 404)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async delete(req: IUserReq, res: Response) {
+  async update (req: Request<IParams, Record<string, unknown>, Partial<Cars>>, res: Response): Promise<void> {
     try {
-      if(req.params.id === undefined){
-        return ResponseHelper.error("Parameter id harus diisi", null, 400)(res);
+      if (req.params.id === undefined) {
+        ResponseHelper.error('Parameter id harus diisi', null, 400)(res); return
       }
-      const id = +req.params.id;
-      await CarService.delete(id, req.user?.id as number);
-      return ResponseHelper.success("Data dihapus")(res);
+      const body = req.body
+      const image = req.file
+      const id = +req.params.id
+      const cars = await this.carService.update(id, body, image, req.user?.id)
+      ResponseHelper.success('Data diubah', cars, 200)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 404)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
+      ErrorHelper.handler(error, res)
+    }
+  }
+
+  async delete (req: Request<IParams>, res: Response): Promise<void> {
+    try {
+      if (req.params.id === undefined) {
+        ResponseHelper.error('Parameter id harus diisi', null, 400)(res); return
       }
+      const id = +req.params.id
+      await this.carService.delete(id, req.user?.id)
+      ResponseHelper.success('Data dihapus')(res)
+    } catch (error) {
+      ErrorHelper.handler(error, res)
     }
   }
 }

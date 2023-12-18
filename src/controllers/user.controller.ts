@@ -1,142 +1,114 @@
-import { Response, Request } from "express";
-import { ResponseHelper } from "../helpers/response.helper";
-import { Users } from "../databases/models/users";
-import { IUserReq } from "../interfaces/user.req.interface";
-import { UserService } from "../services/user.service";
-import { OAuth2Client, UserRefreshClient } from "google-auth-library";
-import { config } from "dotenv";
+import { type Response, type Request, type Express } from 'express'
+import { ResponseHelper } from '../helpers/response.helper'
+import { type Users } from '../databases/models/users'
+import { UserService } from '../services/user.service'
+import { OAuth2Client, UserRefreshClient } from 'google-auth-library'
+import { config } from 'dotenv'
+import { ErrorHelper } from '../helpers/error.helper'
 
-config();
+config()
 
 const ClientId = process.env.GOOGLE_CLIENT_ID
 const ClientSecret = process.env.GOOGLE_SECRET
-const oAuth2Client = new OAuth2Client(ClientId, ClientSecret, 'postmessage');
+const oAuth2Client = new OAuth2Client(ClientId, ClientSecret, 'postmessage')
 
-export class UserController extends ResponseHelper {
+export class UserController {
+  app: Express
+  public userService: UserService
 
-  async googleLogin(req: Request, res: Response) {
-    try {
-      const { tokens } = await oAuth2Client.getToken(req.body.code);
-      return ResponseHelper.success("Data disimpan", tokens, 201)(res);
-    } catch (error) {
-      console.log(error);
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 400)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
-    }    
+  constructor (app: Express) {
+    this.app = app
+    this.userService = new UserService()
   }
 
-  async refreshTokenGoogle(req: Request, res: Response) {
+  async googleLogin (req: Request, res: Response): Promise<void> {
+    try {
+      const { tokens } = await oAuth2Client.getToken(req.body.code as string)
+      ResponseHelper.success('Berhasil login', tokens, 201)(res)
+    } catch (error) {
+      ErrorHelper.handler(error, res)
+    }
+  }
+
+  async refreshTokenGoogle (req: Request, res: Response): Promise<void> {
     try {
       const user = new UserRefreshClient(
         ClientId,
         ClientSecret,
-        req.body.refreshToken
+        req.body.refreshToken as string
       )
-      const { credentials } = await user.refreshAccessToken();
-      return ResponseHelper.success("Data disimpan", credentials, 201)(res);
-    }catch(error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 400)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      const { credentials } = await user.refreshAccessToken()
+      ResponseHelper.success('Data diambil', credentials, 201)(res)
+    } catch (error) {
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async store(req: Request<{}, {}, Users>, res: Response) {
+  async store (req: Request<Record<string, unknown>, Record<string, unknown>, Users>, res: Response): Promise<void> {
     try {
-      const user = await UserService.create(req.body);
+      const user = await this.userService.create(req.body)
 
-      return ResponseHelper.success("Data disimpan", user, 201)(res);
+      ResponseHelper.success('Data disimpan', user, 201)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 400)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async register(req: Request<{}, {}, Users>, res: Response) {
+  async register (req: Request<Record<string, unknown>, Record<string, unknown>, Users>, res: Response): Promise<void> {
     try {
-      const user = await UserService.create(req.body);
+      const user = await this.userService.create(req.body)
 
-      return ResponseHelper.success("Data disimpan", user, 201)(res);
+      ResponseHelper.success('Data disimpan', user, 201)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 400)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async login(req: IUserReq, res: Response) {
+  async login (req: Request<Record<string, unknown>, Record<string, unknown>, Users>, res: Response): Promise<void> {
     try {
-      const { email, password } = req.body;
+      const user = await this.userService.login(req.body.email, req.body.password)
 
-      const user = await UserService.login(email, password);
-  
-      return ResponseHelper.success("Berhasil login", user, 200)(res);
+      ResponseHelper.success('Berhasil login', user, 200)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 401)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
-    }
-  }
-  
-  async logout(req: IUserReq, res: Response) {
-    try {
-      const user = req.user;
-  
-      const userLogout = await UserService.logout(user);
-
-      if (!userLogout) {
-        return ResponseHelper.error("Logout gagal", null, 401)(res);
-      }
-  
-      return ResponseHelper.success("Berhasil logout", null, 200)(res);
-    } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 401)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async refreshToken(req: Request <{}, {token: string}, {refreshToken: string}>, res: Response) {
+  async logout (req: Request, res: Response): Promise<void> {
     try {
-      const refresh_token = req.body.refreshToken;
-  
-      const token = await UserService.refreshToken(refresh_token);
-  
-      return ResponseHelper.success("Berhasil memperbarui token", {
-        token,
-      }, 200)(res);
-    } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 401)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
+      const user = req.user
+
+      const userLogout = await this.userService.logout(user)
+
+      if (userLogout === undefined) {
+        ResponseHelper.error('Logout gagal', null, 401)(res); return
       }
+
+      ResponseHelper.success('Berhasil logout', null, 200)(res)
+    } catch (error) {
+      ErrorHelper.handler(error, res)
     }
   }
 
-  async whoami(req: IUserReq, res: Response) {
+  async refreshToken (req: Request, res: Response): Promise<void> {
     try {
-      return ResponseHelper.success("Berhasil mendapatkan data user", req.user, 200)(res);
+      const refreshToken = req.body.refreshToken
+
+      const token = await this.userService.refreshToken(refreshToken as string)
+
+      ResponseHelper.success('Berhasil memperbarui token', {
+        token
+      }, 200)(res)
     } catch (error) {
-      if (error instanceof Error) {
-        return ResponseHelper.error(error.message, null, 401)(res);
-      } else {
-        return ResponseHelper.error("An unknown error occurred")(res);
-      }
+      ErrorHelper.handler(error, res)
+    }
+  }
+
+  async whoami (req: Request, res: Response): Promise<void> {
+    try {
+      ResponseHelper.success('Berhasil mendapatkan data user', req.user, 200)(res)
+    } catch (error) {
+      ErrorHelper.handler(error, res)
     }
   }
 }

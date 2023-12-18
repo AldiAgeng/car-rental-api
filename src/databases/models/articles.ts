@@ -1,16 +1,17 @@
-import { Model, ModelObject } from "objection";
+import { Model, type ModelObject } from 'objection'
 
 export class ArticlesModel extends Model {
-  id!: number;
-  title!: string;
-  body!: string;
-  approved!: boolean;
-  image!: string;
-  image_public_id!: string;
+  id!: number
+  title!: string
+  body!: string
+  approved!: boolean
+  image!: string
+  image_public_id!: string
 
-  static get tableName() {
-    return "articles";
+  protected static nameOfTable = 'articles'
+  static get tableName (): string {
+    return this.nameOfTable
   }
 }
 
-export type Articles = ModelObject<ArticlesModel>;
+export type Articles = ModelObject<ArticlesModel>

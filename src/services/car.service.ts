@@ -1,27 +1,33 @@
-import { CarRepository } from "../repositories/car.repository";
-import { uploadImageToCloudinary, deleteImageFromCloudinary } from "../utils/file.manipulate";
+import { type Cars } from '../databases/models/cars'
+import { CarRepository } from '../repositories/car.repository'
+import { uploadImageToCloudinary, deleteImageFromCloudinary } from '../utils/file.manipulate'
 export class CarService {
+  carRepository: CarRepository
 
-  static async list(query: any) {
-    const car = await CarRepository.list(query);
-    return car;
+  constructor () {
+    this.carRepository = new CarRepository()
   }
 
-  static async listPublic(query: any) {
-    const car = await CarRepository.listPublic(query);
-    return car;
+  async list (query: any): Promise<any> {
+    const car = await this.carRepository.list(query)
+    return car
   }
 
-  static async show(id: number) {
-    const car = await CarRepository.show(id);
-    return car;
+  async listPublic (query: any): Promise<any> {
+    const car = await this.carRepository.listPublic(query)
+    return car
   }
 
-  static async create(car: any, image: any, userId: number) {
-    const optionsJson = JSON.stringify(car.options);
-    const specsJson = JSON.stringify(car.specs);
+  async show (id: number): Promise<any> {
+    const car = await this.carRepository.show(id)
+    return car
+  }
 
-    const result = await uploadImageToCloudinary(image, "cars");
+  async create (car: any, image: any, userId: number): Promise<any> {
+    const optionsJson = JSON.stringify(car.options)
+    const specsJson = JSON.stringify(car.specs)
+
+    const result = await uploadImageToCloudinary(image, 'cars')
 
     const carPayload = {
       ...car,
@@ -31,54 +37,54 @@ export class CarService {
       image: result.secure_url
     }
 
-    const cars = await CarRepository.create(carPayload, userId);
-    return cars;
+    const cars = await this.carRepository.create(carPayload as Cars, userId)
+    return cars
   }
 
-  static async update(id: number, car: any, image: any, userId: number) {
-    const optionsJson = JSON.stringify(car.options);
-    const specsJson = JSON.stringify(car.specs);
+  async update (id: number, car: any, image: any, userId: number): Promise<any> {
+    const optionsJson = JSON.stringify(car.options)
+    const specsJson = JSON.stringify(car.specs)
 
-    const carInDB = await CarRepository.show(id);
+    const carInDB = await this.carRepository.show(id)
 
     if (carInDB.image == null && carInDB.image_public_id == null) {
-        const result = await uploadImageToCloudinary(image, "cars");
+      const result = await uploadImageToCloudinary(image, 'cars')
 
-        const carPayload = {
-            ...car,
-            options: optionsJson,
-            specs: specsJson,
-            image_public_id: result.public_id,
-            image: result.secure_url
-        };
-
-        return await CarRepository.update(id, carPayload, userId);
-    }
-
-    await deleteImageFromCloudinary(carInDB.image_public_id);
-
-    const result = await uploadImageToCloudinary(image, "cars");
-
-    const carPayload = {
+      const carPayload = {
         ...car,
         options: optionsJson,
         specs: specsJson,
         image_public_id: result.public_id,
         image: result.secure_url
-    };
+      }
 
-    return await CarRepository.update(id, carPayload, userId);
-  }
-  static async delete(id: number, userId: number) {
-
-    const carInDB = await CarRepository.show(id);
-
-    if (carInDB.image && carInDB.image_public_id) {
-      await deleteImageFromCloudinary(carInDB.image_public_id);
-
-      return await CarRepository.delete(id, userId);
+      return await this.carRepository.update(id, carPayload as Cars, userId)
     }
 
-    return await CarRepository.delete(id, userId);
+    await deleteImageFromCloudinary(carInDB.image_public_id as string)
+
+    const result = await uploadImageToCloudinary(image, 'cars')
+
+    const carPayload = {
+      ...car,
+      options: optionsJson,
+      specs: specsJson,
+      image_public_id: result.public_id,
+      image: result.secure_url
+    }
+
+    return await this.carRepository.update(id, carPayload as Cars, userId)
+  }
+
+  async delete (id: number, userId: number): Promise<any> {
+    const carInDB = await this.carRepository.show(id)
+
+    if (carInDB.image != null && carInDB.image_public_id != null) {
+      await deleteImageFromCloudinary(carInDB.image_public_id as string)
+
+      return await this.carRepository.delete(id, userId)
+    }
+
+    return await this.carRepository.delete(id, userId)
   }
 }

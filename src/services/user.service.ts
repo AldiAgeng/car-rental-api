@@ -1,97 +1,102 @@
-import { UserRepository } from "../repositories/user.repository";
-import { hashPassword, comparePassword } from "../utils/bcrypt.password";
-import { ResponseHelper } from "../helpers/response.helper";
-import { createToken, createRefreshToken } from "../utils/create.token";
+import { UserRepository } from '../repositories/user.repository'
+import { hashPassword, comparePassword } from '../utils/bcrypt.password'
+import { createToken, createRefreshToken } from '../utils/create.token'
 
 export class UserService {
-  static async create(user: any) {
+  public userRepository: UserRepository
 
-    const isEmailExist = await UserRepository.show({ email: user.email });
-
-    if (isEmailExist) {
-      throw new Error("Email already exist");
-    }
-
-    user.password = await hashPassword(user.password) as string;
-
-    return await UserRepository.create(user);
+  constructor () {
+    this.userRepository = new UserRepository()
   }
 
-  static async register(user: any) {
+  async create (user: any): Promise<any> {
+    const isEmailExist = await this.userRepository.show({ email: user.email })
 
-    const isEmailExist = await UserRepository.show({ email: user.email });
+    console.log(isEmailExist, 'coy')
 
-    if (isEmailExist) {
-      throw new Error("Email already exist");
+    if (isEmailExist !== undefined) {
+      throw new Error('Email already exist')
     }
 
-    user.password = await hashPassword(user.password) as string;
+    user.password = await hashPassword(user.password as string)
 
-    return await UserRepository.create({
+    return await this.userRepository.create(user)
+  }
+
+  async register (user: any): Promise<any> {
+    const isEmailExist = await this.userRepository.show({ email: user.email })
+
+    if (isEmailExist !== undefined) {
+      throw new Error('Email already exist')
+    }
+
+    user.password = await hashPassword(user.password as string)
+
+    return await this.userRepository.create({
       ...user,
       role_id: 3
-    });
+    })
   }
 
-  static async login(email: string, password: string) {
-    const user = await UserRepository.show({ email });
-  
-    if (!user) {
-      throw new Error("Email or password invalid");
+  async login (email: string, password: string): Promise<any> {
+    const user = await this.userRepository.show({ email })
+
+    if (user === null) {
+      throw new Error('Email or password invalid cok')
     }
 
-    const isPasswordValid = await comparePassword(password, user.password);
+    const isPasswordValid = await comparePassword(password, user.password)
 
     if (!isPasswordValid) {
-      throw new Error("Email or password invalid");
+      throw new Error('Email or password invalid cik')
     }
 
     const token = createToken({
       id: user.id,
       name: user.name,
-      email: user.email,
-    });
+      email: user.email
+    })
 
-    const refresh_token = createRefreshToken({
+    const refreshToken = createRefreshToken({
       id: user.id,
       name: user.name,
-      email: user.email,
-    });
+      email: user.email
+    })
 
-    await UserRepository.update(user.id, {
+    await this.userRepository.update(user.id, {
       token,
-      refresh_token
-    });
+      refresh_token: refreshToken
+    })
 
     return {
       token,
-      refresh_token
+      refresh_token: refreshToken
     }
   }
 
-  static async logout(user: any) {
-    return await UserRepository.update(user.id, {
-      token: "",
-      refresh_token: ""
-    });
+  async logout (user: any): Promise<any> {
+    return await this.userRepository.update(user.id as number, {
+      token: '',
+      refresh_token: ''
+    })
   }
 
-  static async refreshToken(refreshToken: string) {
-    const user = await UserRepository.show({ refresh_token: refreshToken });
+  async refreshToken (refreshToken: string): Promise<any> {
+    const user = await this.userRepository.show({ refresh_token: refreshToken })
 
-    if (!user) {
-      throw new Error("Refresh token invalid");
+    if (user === undefined) {
+      throw new Error('Refresh token invalid')
     }
 
     const token = createToken({
       id: user.id,
       name: user.name,
-      email: user.email,
-    });
+      email: user.email
+    })
 
-    await UserRepository.update(user.id, {
+    await this.userRepository.update(user.id, {
       token
-    });
+    })
 
     return {
       token
