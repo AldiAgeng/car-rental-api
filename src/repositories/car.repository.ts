@@ -43,7 +43,7 @@ export class CarRepository {
     }).throwIfNotFound()
 
     if (search !== '') {
-      await queryBuilder.whereILike('name', `%${search}%`)
+      await queryBuilder.whereILike('plate', `%${search}%`)
     }
 
     if (dateFilter !== '') {

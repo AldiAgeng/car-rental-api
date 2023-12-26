@@ -34,6 +34,16 @@ export class CarsModel extends softDelete(Model) {
     return this.nameOfTable
   }
 
+  static get jsonSchema (): object {
+    return {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        plate: { type: 'string', minLength: 1, maxLength: 255 }
+      }
+    }
+  }
+
   static relationMappings = {
     userCreated: {
       relation: Model.BelongsToOneRelation,

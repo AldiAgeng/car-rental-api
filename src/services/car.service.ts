@@ -18,8 +18,8 @@ export class CarService {
     return car
   }
 
-  async show (id: number): Promise<any> {
-    const car = await this.carRepository.show(id)
+  async show (id: any): Promise<any> {
+    const car = await this.carRepository.show(id as number)
     return car
   }
 
@@ -41,11 +41,11 @@ export class CarService {
     return cars
   }
 
-  async update (id: number, car: any, image: any, userId: number): Promise<any> {
+  async update (id: any, car: any, image: any, userId: number): Promise<any> {
     const optionsJson = JSON.stringify(car.options)
     const specsJson = JSON.stringify(car.specs)
 
-    const carInDB = await this.carRepository.show(id)
+    const carInDB = await this.carRepository.show(id as number)
 
     if (carInDB.image == null && carInDB.image_public_id == null) {
       const result = await uploadImageToCloudinary(image, 'cars')
@@ -58,7 +58,7 @@ export class CarService {
         image: result.secure_url
       }
 
-      return await this.carRepository.update(id, carPayload as Cars, userId)
+      return await this.carRepository.update(id as number, carPayload as Cars, userId)
     }
 
     await deleteImageFromCloudinary(carInDB.image_public_id as string)
@@ -73,18 +73,18 @@ export class CarService {
       image: result.secure_url
     }
 
-    return await this.carRepository.update(id, carPayload as Cars, userId)
+    return await this.carRepository.update(id as number, carPayload as Cars, userId)
   }
 
-  async delete (id: number, userId: number): Promise<any> {
-    const carInDB = await this.carRepository.show(id)
+  async delete (id: any, userId: number): Promise<any> {
+    const carInDB = await this.carRepository.show(id as number)
 
     if (carInDB.image != null && carInDB.image_public_id != null) {
       await deleteImageFromCloudinary(carInDB.image_public_id as string)
 
-      return await this.carRepository.delete(id, userId)
+      return await this.carRepository.delete(id as number, userId)
     }
 
-    return await this.carRepository.delete(id, userId)
+    return await this.carRepository.delete(id as number, userId)
   }
 }

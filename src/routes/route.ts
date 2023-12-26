@@ -9,7 +9,7 @@ export const route = Router()
 const app: Express = express()
 
 const userController = new UserController(app)
-const { login, refreshToken, logout, whoami, store, register, googleLogin } = userController
+const { login, refreshToken, logout, whoami, store, register } = userController
 
 const carsController = new CarsController(app)
 const { listPublic, list, create, show, update, delete: deleteCar } = carsController
@@ -35,6 +35,6 @@ route.post('/users', authenticateTokenSuperAdmin, store.bind(userController))
 route.post('/users/member/register', register.bind(userController))
 
 // oauth
-route.post('/users/auth/google', googleLogin.bind(userController))
+// route.post('/users/auth/google', googleLogin.bind(userController))
 
 export default route

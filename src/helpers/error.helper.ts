@@ -15,10 +15,12 @@ export class ErrorHelper {
       ResponseHelper.error(error.message, error.data, 400)(res)
     } else if (error instanceof NotFoundError) {
       ResponseHelper.error(error.message, error.stack, 404)(res)
+    } else if (error.message === 'Email or password invalid' || error.message === 'Email already exist' || error.message === 'Email or password invalid' || error.message === 'Refresh token invalid') {
+      ResponseHelper.error(error.message, error.stack, 401)(res)
     } else if (error instanceof Error) {
-      ResponseHelper.error(error.message, error.stack, 500)(res)
+      ResponseHelper.error(error.message, error.stack, 400)(res)
     } else {
-      ResponseHelper.error('An unknown error occurred')(res)
+      ResponseHelper.error('An unknown error occurred', null, 500)(res)
     }
   }
 }

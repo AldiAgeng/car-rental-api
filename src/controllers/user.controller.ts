@@ -2,15 +2,15 @@ import { type Response, type Request, type Express } from 'express'
 import { ResponseHelper } from '../helpers/response.helper'
 import { type Users } from '../databases/models/users'
 import { UserService } from '../services/user.service'
-import { OAuth2Client, UserRefreshClient } from 'google-auth-library'
+// import { OAuth2Client } from 'google-auth-library'
 import { config } from 'dotenv'
 import { ErrorHelper } from '../helpers/error.helper'
 
 config()
 
-const ClientId = process.env.GOOGLE_CLIENT_ID
-const ClientSecret = process.env.GOOGLE_SECRET
-const oAuth2Client = new OAuth2Client(ClientId, ClientSecret, 'postmessage')
+// const ClientId = process.env.GOOGLE_CLIENT_ID
+// const ClientSecret = process.env.GOOGLE_SECRET
+// const oAuth2Client = new OAuth2Client(ClientId, ClientSecret, 'postmessage')
 
 export class UserController {
   app: Express
@@ -21,28 +21,28 @@ export class UserController {
     this.userService = new UserService()
   }
 
-  async googleLogin (req: Request, res: Response): Promise<void> {
-    try {
-      const { tokens } = await oAuth2Client.getToken(req.body.code as string)
-      ResponseHelper.success('Berhasil login', tokens, 201)(res)
-    } catch (error) {
-      ErrorHelper.handler(error, res)
-    }
-  }
+  // async googleLogin (req: Request, res: Response): Promise<void> {
+  //   try {
+  //     const { tokens } = await oAuth2Client.getToken(req.body.code as string)
+  //     ResponseHelper.success('Berhasil login', tokens, 200)(res)
+  //   } catch (error) {
+  //     ErrorHelper.handler(error, res)
+  //   }
+  // }
 
-  async refreshTokenGoogle (req: Request, res: Response): Promise<void> {
-    try {
-      const user = new UserRefreshClient(
-        ClientId,
-        ClientSecret,
-        req.body.refreshToken as string
-      )
-      const { credentials } = await user.refreshAccessToken()
-      ResponseHelper.success('Data diambil', credentials, 201)(res)
-    } catch (error) {
-      ErrorHelper.handler(error, res)
-    }
-  }
+  // async refreshTokenGoogle (req: Request, res: Response): Promise<void> {
+  //   try {
+  //     const user = new UserRefreshClient(
+  //       ClientId,
+  //       ClientSecret,
+  //       req.body.refreshToken as string
+  //     )
+  //     const { credentials } = await user.refreshAccessToken()
+  //     ResponseHelper.success('Data diambil', credentials, 201)(res)
+  //   } catch (error) {
+  //     ErrorHelper.handler(error, res)
+  //   }
+  // }
 
   async store (req: Request<Record<string, unknown>, Record<string, unknown>, Users>, res: Response): Promise<void> {
     try {
@@ -77,12 +77,7 @@ export class UserController {
   async logout (req: Request, res: Response): Promise<void> {
     try {
       const user = req.user
-
-      const userLogout = await this.userService.logout(user)
-
-      if (userLogout === undefined) {
-        ResponseHelper.error('Logout gagal', null, 401)(res); return
-      }
+      await this.userService.logout(user)
 
       ResponseHelper.success('Berhasil logout', null, 200)(res)
     } catch (error) {

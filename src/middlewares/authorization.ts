@@ -26,14 +26,14 @@ export const authenticateToken: (
       return
     }
 
-    const isHavetoken = await UsersModel.query().findOne({
-      token: tokenUser
-    })
+    // const isHavetoken = await UsersModel.query().findOne({
+    //   token: tokenUser
+    // })
 
-    if (isHavetoken === undefined) {
-      ResponseHelper.error('token notfound', null, 401)(res)
-      return
-    }
+    // if (isHavetoken === undefined) {
+    //   ResponseHelper.error('token notfound', null, 401)(res)
+    //   return
+    // }
 
     req.user = user as Users
     next()
@@ -62,9 +62,8 @@ export const authenticateTokenSuperAdmin: (
     }
 
     const isHavetoken = await UsersModel.query().findOne({
-      token: tokenUser
-    }).andWhere({
       role_id: 1
+      // token: tokenUser
     })
 
     if (isHavetoken === undefined) {
@@ -98,9 +97,7 @@ export const authenticateTokenAdmin: (
       return
     }
 
-    const isHavetoken = await UsersModel.query().findOne({
-      token: tokenUser
-    }).andWhereBetween('role_id', [1, 2])
+    const isHavetoken = await UsersModel.query().whereBetween('role_id', [2, 3])
 
     if (isHavetoken === undefined) {
       ResponseHelper.error('Email or password invalid', null, 401)(res)

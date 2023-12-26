@@ -47,10 +47,8 @@ export class CarsController {
 
   async show (req: Request<IParams>, res: Response): Promise<void> {
     try {
-      if (req.params.id === undefined) {
-        ResponseHelper.error('Parameter id harus diisi', null, 400)(res); return
-      }
-      const car = await this.carService.show(+req.params.id)
+      const { id } = req.params
+      const car = await this.carService.show(id)
       ResponseHelper.success('Data ditemukan', car)(res)
     } catch (error) {
       ErrorHelper.handler(error, res)
@@ -59,12 +57,9 @@ export class CarsController {
 
   async update (req: Request<IParams, Record<string, unknown>, Partial<Cars>>, res: Response): Promise<void> {
     try {
-      if (req.params.id === undefined) {
-        ResponseHelper.error('Parameter id harus diisi', null, 400)(res); return
-      }
       const body = req.body
       const image = req.file
-      const id = +req.params.id
+      const { id } = req.params
       const cars = await this.carService.update(id, body, image, req.user?.id)
       ResponseHelper.success('Data diubah', cars, 200)(res)
     } catch (error) {
@@ -74,10 +69,7 @@ export class CarsController {
 
   async delete (req: Request<IParams>, res: Response): Promise<void> {
     try {
-      if (req.params.id === undefined) {
-        ResponseHelper.error('Parameter id harus diisi', null, 400)(res); return
-      }
-      const id = +req.params.id
+      const { id } = req.params
       await this.carService.delete(id, req.user?.id)
       ResponseHelper.success('Data dihapus')(res)
     } catch (error) {

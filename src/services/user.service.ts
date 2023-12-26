@@ -12,8 +12,6 @@ export class UserService {
   async create (user: any): Promise<any> {
     const isEmailExist = await this.userRepository.show({ email: user.email })
 
-    console.log(isEmailExist, 'coy')
-
     if (isEmailExist !== undefined) {
       throw new Error('Email already exist')
     }
@@ -41,14 +39,14 @@ export class UserService {
   async login (email: string, password: string): Promise<any> {
     const user = await this.userRepository.show({ email })
 
-    if (user === null) {
-      throw new Error('Email or password invalid cok')
+    if (user === undefined) {
+      throw new Error('Email or password invalid')
     }
 
     const isPasswordValid = await comparePassword(password, user.password)
 
     if (!isPasswordValid) {
-      throw new Error('Email or password invalid cik')
+      throw new Error('Email or password invalid')
     }
 
     const token = createToken({
