@@ -7,13 +7,7 @@ dotenv.config({ path: path.join(__dirname, '../.env') })
 const config: Record<string, Knex.Config> = {
   development: {
     client: process.env.DB_CLIENT,
-    connection: {
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT ?? '5432'),
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
-    },
+    connection: process.env.DATABASE_URL,
     pool: {
       min: 2,
       max: 10
@@ -29,11 +23,7 @@ const config: Record<string, Knex.Config> = {
 
   production: {
     client: 'postgresql',
-    connection: {
-      database: 'my_db',
-      user: 'username',
-      password: 'password'
-    },
+    connection: process.env.DB_CONNECTION,
     pool: {
       min: 2,
       max: 10
