@@ -28,7 +28,14 @@ RUN npm ci --include=dev
 COPY --link . .
 
 # Build application
-RUN npx tsc
+RUN npm run build
+
+# Display the contents of the folder
+RUN echo $(ls -1 /app)
+
+RUN ls
+
+RUN cd dist/src && ls
 
 # Remove development dependencies
 RUN npm prune --omit=dev
@@ -42,4 +49,4 @@ COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+CMD ["node", "dist/src/index.js"]
