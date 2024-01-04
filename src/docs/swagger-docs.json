@@ -7,6 +7,9 @@
   },
   "servers": [
     {
+      "url": "https://api-car-rental.fly.dev/api/v1/"
+    },
+    {
       "url": "https://real-puce-bonobo-wrap.cyclic.app/api/v1/"
     },
     {
