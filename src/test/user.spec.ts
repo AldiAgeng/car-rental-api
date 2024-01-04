@@ -8,7 +8,7 @@ const app = supertest(server)
 
 beforeAll(async () => {
   try {
-    await UsersModel.query().insert({ name: 'testuser', email: 'testuser@yopmail.com', password: await hashPassword('testuser') })
+    await UsersModel.query().insert({ id: 999, name: 'testuser', email: 'testuser@yopmail.com', password: await hashPassword('testuser') })
   } catch (err) {
     console.log(err)
   }
