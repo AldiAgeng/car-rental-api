@@ -8,12 +8,16 @@ const app = supertest(server)
 let mockToken = ''
 let mockIdCar: number
 beforeAll(async () => {
-  const response = await app.post('/api/v1/users/login').send({
-    email: 'superadmincar@yopmail.com',
-    password: 'superadmincar'
-  })
-  console.log('Login response->', response.body.data.token)
-  mockToken = response.body.data.token
+  try {
+    const result = await app.post('/api/v1/users/login').send({
+      email: 'superadmincar@yopmail.com',
+      password: 'superadmincar'
+    })
+    console.log(result.body.data.token)
+    mockToken = result.body.data.token
+  } catch (err) {
+    console.log(err)
+  }
 })
 
 afterAll(async () => {
