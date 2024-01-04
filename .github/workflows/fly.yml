@@ -27,7 +27,7 @@ jobs:
       - name: create .env
         run: |
           touch .env
-          echo DATABASE_URL=postgres://postgres:root@localhost:5432/knex_starter?schema=public >> .env
+          echo DATABASE_URL=postgres://postgres:root@localhost:5432/postgres?schema=public >> .env
           echo DB_CLIENT=pg >> .env
       - name: Migrate database
         run: npm run knex migrate:latest && npm run knex seed:run
