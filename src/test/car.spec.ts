@@ -13,7 +13,7 @@ beforeAll(async () => {
       email: 'superadmincar@yopmail.com',
       password: 'superadmincar'
     })
-    console.log(result.body.data.token)
+    console.log('ini token', result.body.data.token)
     mockToken = result.body.data.token
   } catch (err) {
     console.log(err)
