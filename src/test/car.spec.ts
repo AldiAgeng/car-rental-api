@@ -12,7 +12,7 @@ beforeAll(async () => {
     email: 'superadmincar@yopmail.com',
     password: 'superadmincar'
   })
-  console.log('Login response:', response.body.data.token)
+  console.log('Login response->', response.body.data.token)
   mockToken = response.body.data.token
 })
 
