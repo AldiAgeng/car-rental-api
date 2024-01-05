@@ -5,12 +5,12 @@ config()
 
 export const createToken = (payload: any): any => {
   return jwt.sign(payload as object, process.env.JWT_SECRET ?? 'Rahasia', {
-    expiresIn: process.env.TOKEN_EXPIRE
+    expiresIn: '1h'
   })
 }
 
 export const createRefreshToken = (payload: any): any => {
   return jwt.sign(payload as object, process.env.JWT_SECRET ?? 'Rahasia', {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRE
+    expiresIn: '1d'
   })
 }
