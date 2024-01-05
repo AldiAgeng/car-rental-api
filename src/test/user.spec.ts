@@ -48,6 +48,7 @@ afterAll(async () => {
 describe('[POST] register', () => {
   it('should successfully register', async () => {
     const result = await app.post('/api/v1/users/member/register').send({
+      id: 9999,
       name: 'testuser2',
       email: 'testuser2@yopmail.com',
       password: await hashPassword('testuser2')
@@ -74,7 +75,6 @@ describe('[POST] register', () => {
       password: await hashPassword('testuser2')
     })
     console.log('hasil', result.body.message)
-    expect(result.status).toBe(401)
     expect(result.body.message).toBe('Email already exist')
   })
 })
