@@ -52,6 +52,7 @@ describe('[POST] register', () => {
       email: 'testuser2@yopmail.com',
       password: await hashPassword('testuser2')
     })
+    console.log('hasil', result.body.message)
     expect(result.status).toBe(201)
     expect(result.body.message).toBe('Data disimpan')
   })
@@ -71,6 +72,7 @@ describe('[POST] register', () => {
       email: 'testuser2@yopmail.com',
       password: await hashPassword('testuser2')
     })
+    console.log('hasil', result.body.message)
     expect(result.status).toBe(401)
     expect(result.body.message).toBe('Email already exist')
   })
