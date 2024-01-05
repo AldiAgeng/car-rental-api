@@ -46,6 +46,8 @@ describe('car', () => {
         'Body color folding remote-controlled pwr mirrors',
         'Dual-stage front airbags w/occupant classification system'
       ])).attach('image', dataImage, 'image-test.jpg')
+      console.log('ini pesan', result.body.message)
+      console.log('ini result', result.body.data)
       mockIdCar = result.body.data.id
       expect(result.status).toBe(201)
       expect(result.body.message).toBe('Data disimpan')
