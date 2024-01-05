@@ -5,6 +5,7 @@ import server from '../server'
 import fs from 'node:fs'
 const app = supertest(server)
 
+// tes
 let mockToken = ''
 let mockIdCar: number
 beforeAll(async () => {
