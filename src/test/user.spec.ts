@@ -91,6 +91,7 @@ describe('[POST] store', () => {
 
   it('should successfully store', async () => {
     const result = await app.post('/api/v1/users').send({
+      id: 9979,
       name: 'testuser3',
       email: 'testuser3@yopmail.com',
       password: await hashPassword('testuser3')
