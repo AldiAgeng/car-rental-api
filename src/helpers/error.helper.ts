@@ -20,7 +20,7 @@ export class ErrorHelper {
     } else if (error instanceof Error) {
       ResponseHelper.error(error.message, error.stack, 400)(res)
     } else {
-      ResponseHelper.error('An unknown error occurred', null, 500)(res)
+      ResponseHelper.error(error.message, error.stack, 500)(res)
     }
   }
 }
